@@ -1,5 +1,5 @@
 # zerobrane-packages
-some packages (plugins) for Zerobrane Studio
+some packages (plugins) for [Zerobrane Studio](http://studio.zerobrane.com/)
 
 
 # Usage
