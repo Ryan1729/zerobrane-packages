@@ -33,7 +33,9 @@ local function makeFunction()
   local selectedText = editor:GetSelectedText()
   local functionText
   
-  if selectedText:match("%.") then  
+  local functionName = string.gsub(selectedText, "%b()", "")
+  
+  if functionName:match("%.") or functionName:match(":") then  
     functionText = ""
   else
     functionText = "local "
