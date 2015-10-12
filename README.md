@@ -5,6 +5,8 @@ some packages (plugins) for [Zerobrane Studio](http://studio.zerobrane.com/)
 # Usage
 See [zerobrane's docs](http://studio.zerobrane.com/doc-plugin#plugin-installation) for installation instructions.
 
+Each package can be installed separately.
+
 Each package adds an entry to the edit menu and has a keyboard shortcut.
 
 ##makeafunction.lua
