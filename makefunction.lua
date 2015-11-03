@@ -1,6 +1,19 @@
+local gsub = string.gsub
+local match = string.match
 local G = ...
 local id = G.ID("makefunction.makefunction")
 local menuid
+
+-- patterns found at http://lua-users.org/wiki/CommonFunctions
+-- Lua pattern for matching Lua single line comment.
+local pat_scomment = "(%-%-[^\n]*)"
+
+-- Lua pattern for matching Lua multi-line comment.
+local pat_mcomment = "(%-%-%[(=*)%[.-%]%2%])"
+
+local function stringMatchesComment(str)
+  return (match(str, pat_scomment)) or (match(str, pat_mcomment))
+end
 
 local function getEOLCharacter()
   -- it would be nice if I could reference the
@@ -23,9 +36,17 @@ local function makeFunction()
   local lineNumber = editor:GetCurrentLine()
   local currentLine = editor:GetLine(lineNumber)
   
+  -- scan upwards for top of file or start of function
   while lineNumber > 0 
-  and not (string.match(currentLine, "^local%s+function")) 
-  and not (string.match(currentLine, "^function")) do
+  and not (match(currentLine, "^local%s+function")) 
+  and not (match(currentLine, "^function")) do
+    lineNumber = lineNumber - 1
+    currentLine = editor:GetLine(lineNumber)
+  end
+  
+  --scan past any comments 
+  while lineNumber > 0 
+  and stringMatchesComment(currentLine)  do
     lineNumber = lineNumber - 1
     currentLine = editor:GetLine(lineNumber)
   end
@@ -33,7 +54,7 @@ local function makeFunction()
   local selectedText = editor:GetSelectedText()
   local functionText
   
-  local functionName = string.gsub(selectedText, "%b()", "")
+  local functionName = gsub(selectedText, "%b()", "")
   
   if functionName:match("%.") or functionName:match(":") then  
     functionText = ""

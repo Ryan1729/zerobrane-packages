@@ -1,3 +1,4 @@
+local match = string.match
 local G = ...
 local id = G.ID("requireselectedmodule.requireselectedmodule")
 local menuid
@@ -23,8 +24,9 @@ local function requireSelectedModule()
   local lineNumber = editor:GetCurrentLine()
   local currentLine = editor:GetLine(lineNumber)
   
+  --scan upwards for any require statements
   while lineNumber > 0 
-  and not (string.match(currentLine, "require%s+%(?\"")) do
+  and not (match(currentLine, "require%s+%(?\"")) do
     lineNumber = lineNumber - 1
     currentLine = editor:GetLine(lineNumber)
   end
@@ -32,7 +34,7 @@ local function requireSelectedModule()
   local selection = editor:GetSelectedText()
   local requireText = "local " .. selection .. " = require(\"" .. selection .. "\")" .. getEOLCharacter()
   
-  editor:GotoLine(lineNumber + 1)
+  editor:GotoLine(lineNumber)
   editor:InsertText(-1, requireText)
   editor:LineEnd()
 end
