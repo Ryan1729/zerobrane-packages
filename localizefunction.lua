@@ -22,31 +22,33 @@ local function localizeFunction()
   
   local selection = editor:GetSelectedText()
   
-  --for this function to work as intended, we need the selection to
-  --contain a name of a function stored on a table, 
+  --is the thing that was selected a function
   -- for instance "math.random"
-  if string.match(selection, "%.") then
-    local lineNumber = editor:GetCurrentLine()
-    local currentLine = editor:GetLine(lineNumber)
-    
-    --scan upwards for any require statements or other localized functions
-    while lineNumber > 0 
-    and not (string.match(currentLine, "require%s+%(?\"")) 
-    and not (string.match(currentLine, "local%s*([^%s]*)%s*=%s*([^%s]*)%.%1")) do
-      lineNumber = lineNumber - 1
-      currentLine = editor:GetLine(lineNumber)
-    end
-    
-    local functionName = string.match(selection, "%.([^%s]*)")
-    
-    editor:ReplaceSelection(functionName)
-    
-    local localizeLine = "local " .. functionName .. " = " .. selection .. getEOLCharacter()
-    
-    editor:GotoLine(lineNumber)
-    editor:InsertText(-1, localizeLine)
-    editor:LineEnd()
+  local isFunction = string.match(selection, "%.") and true or false
+  
+
+  local lineNumber = editor:GetCurrentLine()
+  local currentLine = editor:GetLine(lineNumber)
+  
+  --scan upwards for any require statements or other localized functions
+  while lineNumber > 0 
+  and not (string.match(currentLine, "local%s*([^%s]*)%s*=%s*require%s*%(?%s*\"")) do
+    lineNumber = lineNumber - 1
+    currentLine = editor:GetLine(lineNumber)
   end
+  
+  --unless we're at the top, go to the next line
+  lineNumber = lineNumber > 0 and lineNumber + 1 or lineNumber
+  
+  local name = isFunction and string.match(selection, "%.([^%s]*)") or selection
+  
+  editor:ReplaceSelection(name)
+  
+  local localizeLine = "local " .. name .. " = " .. (isFunction and selection or "") .. getEOLCharacter()
+  
+  editor:GotoLine(lineNumber)
+  editor:InsertText(-1, localizeLine)
+  editor:LineEnd()
 end
 
 return {
