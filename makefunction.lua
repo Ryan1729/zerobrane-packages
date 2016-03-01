@@ -30,9 +30,7 @@ local function getEOLCharacter()
 
 end
 
-local function makeFunction()
-  local editor = GetEditor()
-  
+local function getTargetLineNumber(editor)
   local lineNumber = editor:GetCurrentLine()
   local currentLine = editor:GetLine(lineNumber)
   
@@ -52,11 +50,25 @@ local function makeFunction()
     lineNumber = lineNumber - 1
     currentLine = editor:GetLine(lineNumber)
   end
+
+  --shift back down so we dont ram into a
+  --tightly placed function
+  lineNumber = lineNumber + 1
+  
+  return lineNumber
+end
+
+local function makeFunction()
+  local editor = GetEditor()
+  
+  local lineNumber = getTargetLineNumber(editor)
   
   local selectedText = editor:GetSelectedText()
   local functionText
   
   local functionName = gsub(selectedText, "%b()", "")
+  
+  local hasParentheses = functionName ~= selectedText 
   
   if functionName:match("%.") or functionName:match(":") then  
     functionText = ""
@@ -66,7 +78,7 @@ local function makeFunction()
   
   local EOL = getEOLCharacter()
   
-  functionText = functionText .. "function " .. selectedText .. EOL
+  functionText = functionText .. "function " .. selectedText .. (hasParentheses and "" or "()") .. EOL
   .. EOL
   .. "end" .. EOL
   .. EOL
@@ -74,6 +86,8 @@ local function makeFunction()
   editor:GotoLine(lineNumber)
   editor:InsertText(-1, functionText)
   editor:LineEnd()
+  
+  editor:CharLeft()
 end
 
 return {

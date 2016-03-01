@@ -75,6 +75,8 @@ local function makeFunction()
   
   local functionName = gsub(selectedText, "%b()", "")
   
+  local hasParentheses = functionName ~= selectedText 
+  
   if functionName:match("%.") or functionName:match(":") then  
     functionText = ""
   else
@@ -83,7 +85,7 @@ local function makeFunction()
   
   local EOL = getEOLCharacter()
   
-  functionText = functionText .. "function " .. selectedText .. "()" .. EOL
+  functionText = functionText .. "function " .. selectedText .. (hasParentheses and "" or "()") .. EOL
   .. EOL
   .. "end" .. EOL
   
