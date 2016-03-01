@@ -46,7 +46,9 @@ local function makeFunction()
   
   --scan past any comments 
   while lineNumber > 0 
-  and stringMatchesComment(currentLine)  do
+  and (stringMatchesComment(currentLine)
+  or match(currentLine, "^local%s+function") 
+  or match(currentLine, "^function"))  do
     lineNumber = lineNumber - 1
     currentLine = editor:GetLine(lineNumber)
   end

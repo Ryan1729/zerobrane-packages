@@ -33,10 +33,38 @@ local function getEOLCharacter()
 
 end
 
+local function getTargetLineNumber(editor)
+  local lineNumber = editor:GetCurrentLine()
+  local currentLine = editor:GetLine(lineNumber)
+  
+  -- scan upwards for top of file or start of function
+  while lineNumber > 0 
+  and not (match(currentLine, "^local%s+function")) 
+  and not (match(currentLine, "^function")) do
+    lineNumber = lineNumber - 1
+    currentLine = editor:GetLine(lineNumber)
+  end
+  
+  --scan past any comments 
+  while lineNumber > 0 
+  and (stringMatchesComment(currentLine)
+  or match(currentLine, "^local%s+function") 
+  or match(currentLine, "^function"))  do
+    lineNumber = lineNumber - 1
+    currentLine = editor:GetLine(lineNumber)
+  end
+
+  --shift back down so we dont ram into a
+  --tightly placed function
+  lineNumber = lineNumber + 1
+  
+  return lineNumber
+end
+
 local function makeFunction()
   local editor = GetEditor()
   
-  local lineNumber = editor:GetCurrentLine()
+  local lineNumber = getTargetLineNumber(editor)
   local currentLine = editor:GetLine(lineNumber)
   
   local selectedText = editor:GetSelectedText()
